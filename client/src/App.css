@@ -1,0 +1,9 @@
+/* background: linear-gradient(#0ae448 0%, #abff44 100%);*/
+.bg-primary-gradient {
+  background: linear-gradient(140deg, #0ae448 -10%, #abff44 100%)
+}
+
+.border-primary-gradient {
+  border-image: linear-gradient(#0ae448 0%, #abff44 100%);
+  border-image-slice: 1;  
+}
