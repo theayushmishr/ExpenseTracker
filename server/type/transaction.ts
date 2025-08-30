@@ -17,6 +17,7 @@ export interface TransactionProps {
   name: string;
   amount: number;
   type: TransactionType;
+  date: Date;
   frequency: TransactionFrequencyType;
   category: string;
   description: string;

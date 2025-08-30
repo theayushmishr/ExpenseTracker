@@ -1,19 +1,27 @@
 // types
-import type { Database } from "sqlite3";
-import type {
-  TransactionType,
+import {
   TransactionFrequencyType,
-  TransactionProps,
+  TransactionType,
+  type TransactionProps,
 } from "../type/transaction";
+
+import type { invalidField } from "../util/error";
+
 import type { TransactionRepository } from "../repository/transaction";
 
 //utils
-import { ValidationError, NotFoundError, InternalError } from "../util/error";
+import { ValidationError, InternalError } from "../util/error";
+
 import Logger from "../util/logger.ts";
 const logger = Logger.child({ module: "TransactionService" });
 
+/* FIXME : Unhandled Non-Error Objects
+ *
+ * */
+
 export class TransactionService {
-  transactionRepository: TransactionRepository;
+  private readonly transactionRepository: TransactionRepository;
+
   constructor(transactionRepository: TransactionRepository) {
     this.transactionRepository = transactionRepository;
   }
@@ -27,7 +35,7 @@ export class TransactionService {
     } catch (err: unknown) {
       if (err instanceof Error) {
         logger.error({
-          Error: "Failed to add transaction",
+          Error: "Failed to create transaction table",
           Message: err.message,
           Stack: err.stack,
           Cause: err.cause,
@@ -36,8 +44,10 @@ export class TransactionService {
       throw new InternalError("Somethine went wrong", 500);
     }
   }
+
   async addTransaction(props: TransactionProps) {
     try {
+      this.validate(props);
       const transaction_id =
         await this.transactionRepository.insertTransaction(props);
       logger.info({
@@ -48,6 +58,14 @@ export class TransactionService {
         ...props,
       };
     } catch (err: unknown) {
+      if (err instanceof ValidationError) {
+        logger.warn({
+          Error: "Validation failed",
+          Message: err.message,
+          InvalidFields: err.metadata.invalidField,
+        });
+        throw err;
+      }
       if (err instanceof Error) {
         logger.error({
           Error: "Failed to add transaction",
@@ -56,13 +74,48 @@ export class TransactionService {
           Cause: err.cause,
         });
       }
-      throw new InternalError("Somethine went wrong", 500);
+      throw new InternalError("Something went wrong", 500);
     }
   }
 
-  async validate(props: TransactionProps) {
-    const invalidFields = [];
-    if (props.amount < 0) {
+  private validate(props: TransactionProps) {
+    const issues: invalidField[] = [];
+    if (
+      typeof props.amount !== "number" ||
+      !Number.isFinite(props.amount) ||
+      props.amount < 0
+    ) {
+      issues.push({
+        invalidField: "amount",
+        message: "Invalid amount",
+        hint: "Amount should be more than 0",
+      });
+    }
+
+    if (!Object.values(TransactionType).includes(props.type)) {
+      issues.push({
+        invalidField: "type",
+        message: "Invalid transaction type",
+        hint: "Transaction type should only be 'Income' or 'Expense'",
+      });
+    }
+    if (!Object.values(TransactionFrequencyType).includes(props.frequency)) {
+      issues.push({
+        invalidField: "frequency",
+        message: "Invalid frequency",
+        hint: "Select given frequencies",
+      });
+    }
+    if (!props.date || isNaN(new Date(props.date).getTime())) {
+      issues.push({
+        invalidField: "date",
+        message: "Invalid date",
+        hint: "Please provide a valid date",
+      });
+    }
+
+    if (issues.length > 0) {
+      throw ValidationError.fromInvalidFields(issues);
     }
   }
 }

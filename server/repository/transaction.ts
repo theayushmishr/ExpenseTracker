@@ -1,3 +1,7 @@
+/**
+ * FIXME : Missing Date Field Handling @function insertTransaction
+ */
+
 // types
 import type { Database } from "sqlite3";
 import type { TransactionProps } from "../type/transaction";
@@ -17,7 +21,7 @@ const logger = Logger.child({ module: "transaction.Repository" });
  */
 
 export class TransactionRepository {
-  db: Database;
+  private readonly db: Database;
   constructor(db: Database) {
     this.db = db;
   }
@@ -102,11 +106,15 @@ export class TransactionRepository {
     }
   }
 
-  /*TODO: Implement soft delete */
-  async deleteTransaction(id: number): Promise<number> {
+  /* TODO: Implement soft delete
+   * FIXME : Change Promise<T>
+   * FIXME : Return @lastID after soft deletion
+   * */
+
+  async deleteTransaction(id: number): Promise<boolean> {
     try {
-      const { lastID, changes } = await run(
-        `DELETE FROM Transaction WHERE id = ?`,
+      const { changes } = await run(
+        `DELETE FROM transactions WHERE id = ?`,
         [id],
         this.db,
       );
@@ -114,13 +122,13 @@ export class TransactionRepository {
         logger.error({
           Error: "Transaction ID is not found",
         });
-        throw new InternalError("Something went wrong", 500);
+        throw new InternalError("Something went wrong", 404);
       }
-      return lastID;
+      return changes > 0;
     } catch (err: unknown) {
       if (err instanceof Error) {
         logger.error({
-          Error: "Transaction Insertion Failed",
+          Error: "Transaction Deletion Failed",
           Message: err.message,
           Stack: err.stack,
           Cause: err.cause,

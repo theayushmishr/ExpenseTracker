@@ -1,3 +1,7 @@
+// TODO : Helper Function to handle non error object or to convert them into error object
+
+import type { TransactionProps } from "../type/transaction";
+
 export interface ErrorMetaData {
   timeStamp?: string;
   requestId?: string;
@@ -46,10 +50,10 @@ class CustomError extends Error {
   }
 }
 
-interface invalidField {
-  invalidField: string;
+export interface invalidField {
+  invalidField: keyof TransactionProps;
   message: string;
-  hint: string;
+  hint?: string;
 }
 
 class ValidationError extends CustomError {
@@ -57,16 +61,16 @@ class ValidationError extends CustomError {
   constructor(
     statusCode: number,
     message: string,
-    metadata?: ErrorMetaData,
-    issues?: invalidField[],
+    metadata: ErrorMetaData,
+    issues: invalidField[] = [],
   ) {
     super({
       name: "ValidationError",
       message,
       statusCode,
-      metadata: { ...metadata, invalidFeild: issues },
+      metadata: { ...metadata, invalidFields: issues },
     });
-    this.issues = [];
+    this.issues = issues;
   }
   static fromInvalidFields(
     issues: invalidField[] = [],
