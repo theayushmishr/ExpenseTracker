@@ -1,5 +1,3 @@
-import type { SelectionRange } from "typescript";
-
 export interface ErrorMetaData {
   timeStamp?: string;
   requestId?: string;
@@ -48,20 +46,36 @@ class CustomError extends Error {
   }
 }
 
-interface fields {
-  feild: string;
+interface invalidField {
+  invalidField: string;
   message: string;
+  hint: string;
 }
 
 class ValidationError extends CustomError {
-  constructor(statusCode: number, message: string, metadata?: ErrorMetaData) {
-    super({ name: "ValidationError", message, statusCode, metadata });
+  public readonly issues: invalidField[];
+  constructor(
+    statusCode: number,
+    message: string,
+    metadata?: ErrorMetaData,
+    issues?: invalidField[],
+  ) {
+    super({
+      name: "ValidationError",
+      message,
+      statusCode,
+      metadata: { ...metadata, invalidFeild: issues },
+    });
+    this.issues = [];
   }
   static fromInvalidFields(
-    fields: fields[],
+    issues: invalidField[] = [],
     message = "Validation failed",
   ): ValidationError {
-    return new ValidationError(400, message, { invalidFields: fields });
+    return new ValidationError(400, message, {}, issues);
+  }
+  push(issue: invalidField): void {
+    this.issues.push(issue);
   }
 }
 
