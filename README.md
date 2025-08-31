@@ -10,8 +10,8 @@ It’s messy, it’s growing, and I’m learning as I go. Think of it like a Tam
 ## Tech stuff
 
 - Backend: Node.js + Express
-- Frontend: React + Tailwind CSS (easier than css and i dont to right utilities)
-- Database: SQLite3 (lightweight and easy, because I’m a beginner)
+- Frontend: React + Tailwind CSS
+- Database: SQLite3
 
 ## TODOs
 
