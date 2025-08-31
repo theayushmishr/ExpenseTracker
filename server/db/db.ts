@@ -1,6 +1,24 @@
 import sqlite3 from "sqlite3";
+import path from "path";
+import Logger from "../util/logger.ts";
 
-export const db = new sqlite3.Database("../data/transaction.db");
+const logger = Logger.child({ module: "db" });
+const dbPath = path.join(import.meta.dir, "../data/transaction.db");
+
+export const db = new sqlite3.Database(dbPath, (err) => {
+  if (err) {
+    logger.error({
+      Error: "Failed to open database",
+      Message: err.message,
+      Stack: err.stack,
+      cause: err.cause,
+    });
+  } else {
+    logger.info({
+      Message: "SQLITE3 DB is ready",
+    });
+  }
+});
 
 export const execute = async (
   sql: string,

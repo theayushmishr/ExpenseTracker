@@ -67,19 +67,18 @@ export class TransactionRepository {
     amount,
     type,
     frequency,
-    category,
     description,
   }: TransactionProps): Promise<number> {
     try {
       const { lastID, changes } = await run(
         `INSERT INTO transactions(name,amount,type,frequency,category,description) VALUES(?,?,?,?,?,?)`,
-        [name, amount, type, frequency, category, description],
+        [name, amount, type, frequency, description],
         this.db,
       );
       if (!changes) {
         logger.error({
           Error: "Transaction insertion failed: no rows affected",
-          Payload: { name, amount, type, frequency, category },
+          Payload: { name, amount, type, frequency },
         });
 
         throw new InternalError("Something went wrong", 404);
@@ -98,7 +97,7 @@ export class TransactionRepository {
           Message: err.message,
           Stack: err.stack,
           Cause: err.cause,
-          Payload: { name, amount, type, frequency, category },
+          Payload: { name, amount, type, frequency },
         });
       }
 

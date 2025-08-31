@@ -19,6 +19,5 @@ export interface TransactionProps {
   type: TransactionType;
   date: Date;
   frequency: TransactionFrequencyType;
-  category: string;
   description: string;
 }

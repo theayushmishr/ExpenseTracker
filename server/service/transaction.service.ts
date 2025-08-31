@@ -7,7 +7,7 @@ import {
 
 import type { invalidField } from "../util/error";
 
-import type { TransactionRepository } from "../repository/transaction";
+import { TransactionRepository } from "../repository/transaction";
 
 //utils
 import { ValidationError, InternalError } from "../util/error";
@@ -15,8 +15,7 @@ import { ValidationError, InternalError } from "../util/error";
 import Logger from "../util/logger.ts";
 const logger = Logger.child({ module: "TransactionService" });
 
-/* FIXME : Unhandled Non-Error Objects
- *
+/* FIXME : handled Non-Error Objects
  * */
 
 export class TransactionService {
@@ -41,7 +40,7 @@ export class TransactionService {
           Cause: err.cause,
         });
       }
-      throw new InternalError("Somethine went wrong", 500);
+      throw new InternalError("Something went wrong", 500);
     }
   }
 
@@ -117,5 +116,9 @@ export class TransactionService {
     if (issues.length > 0) {
       throw ValidationError.fromInvalidFields(issues);
     }
+  }
+
+  public async updateTransaction(id: number, transaction: TransactionProps) {
+    this.validate(transaction);
   }
 }

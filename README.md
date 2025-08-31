@@ -15,8 +15,9 @@ It’s messy, it’s growing, and I’m learning as I go. Think of it like a Tam
 
 ## TODOs
 
-- [ ] Implement Update `TransactionRepository`
+- [ ] Implement Update `TransactionRepository` & `TransactionService`
 - [ ] Implement Soft Delete `TransactionRepository`
-- [ ] Implement validate props `TransactionService`
-  - [ ] Fix validate Error `feild method`
-  - [ ] refactor `ValidationError`
+- [x] Implement validate props `TransactionService`
+  - [x] Fix validate Error `feild method`
+  - [x] refactor `ValidationError`
+- [ ] Helper Function to Handle Non Error Objects `Error`.
